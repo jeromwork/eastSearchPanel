@@ -1,43 +1,38 @@
+
 <script setup>
-import { ref } from 'vue'
+import {ref, onMounted, defineAsyncComponent, reactive, computed} from 'vue'
 
 import { useStorage } from '@vueuse/core'
 
 defineProps({
-  msg: String,
+    msg: String,
 })
-
-const count = ref(0)
-
-const stateDoctorsList = (window.__eastDoctorsList) ? window.__eastDoctorsList: {}
-
+console.log(window)
+const stateDoctorsList = (window.__eastDoctorsList) ? computed(() => window.__eastDoctorsList):reactive({});
+const childComponent = ref({});
+const isWindow = ref(false);
+// Use onMounted to access the window object after the component is mounted
+onMounted(() => {
+    // Bind storedValue to the window object
+    if (window.__eastDoctorsList) {
+        isWindow.value=true;
+        //stateDoctorsList = computed(() => window.__eastDoctorsList);
+        //stateDoctorsList.value = window.__eastDoctorsList; // Update ref value
+    }
+    childComponent.value = defineAsyncComponent(() => import('./child2.vue'));
+});
 
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+    {{stateDoctorsList}}
 
-  <div class="card">
-    <button type="button" @click="stateDoctorsList.count++">count is {{ stateDoctorsList.count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
-  </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Install
-    <a href="https://github.com/vuejs/language-tools" target="_blank">Volar</a>
-    in your IDE for a better DX
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
+    <component :is="childComponent" msg="chiiiild!"></component>
+    <div class="card">
+        <button type="button" @click="stateDoctorsList.count++">Increment count in app2: {{ stateDoctorsList.count }}</button>
+    </div>
 </template>
+
 
 <style scoped>
 .read-the-docs {
